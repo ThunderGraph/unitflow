@@ -6,8 +6,8 @@ from fractions import Fraction
 
 from unitflow.core.quantities import Quantity
 from unitflow.core.scale import Scale
-from unitflow.core.units import Unit
 from unitflow.core.unit_families import UnitFamily
+from unitflow.core.units import Unit
 from unitflow.errors import UnitError
 
 
@@ -46,7 +46,7 @@ def define_unit(
                 "define_unit() only supports exact quantity magnitudes. Use int or Fraction, not float."
             )
         dimension = expr.unit.dimension
-        scale = _scale_from_exact_magnitude(expr.magnitude) * expr.unit.scale
+        scale = _scale_from_exact_magnitude(expr.magnitude) * expr.unit.scale  # type: ignore[arg-type]
         inherited_family = expr.unit.family
     else:
         raise UnitError("define_unit() expr must be a Unit or an exact Quantity.")

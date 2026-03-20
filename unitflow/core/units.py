@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from unitflow.core.dimensions import Dimension
 from unitflow.core.scale import Scale
 from unitflow.core.unit_families import UnitFamily
 from unitflow.errors import IncompatibleUnitError, UnitError
 
+if TYPE_CHECKING:
+    from unitflow.core.quantities import Quantity
 
 _UNSET = object()
 
@@ -104,11 +107,11 @@ class Unit:
             symbol=new_symbol,
         )
 
-    def __rmul__(self, other: object):
+    def __rmul__(self, other: object) -> Quantity:  # type: ignore[override]
         from unitflow.core.quantities import Quantity, is_supported_magnitude
 
         if is_supported_magnitude(other):
-            return Quantity(other, self, _explicit_display=True)
+            return Quantity(other, self, _explicit_display=True)  # type: ignore[arg-type]
         return NotImplemented
 
     def __truediv__(self, other: Unit) -> Unit:
@@ -162,7 +165,7 @@ class Unit:
             return self.symbol
         if self.name:
             return self.name
-        
+
         from unitflow.core.display import default_resolver
         return default_resolver.resolve_unit_symbol(self)
 

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from fractions import Fraction
 
-from unitflow import Dimension, Scale, Unit
 from tests.helpers import make_centimeter, make_meter, make_minute, make_radian, make_second, make_turn
+from unitflow import Dimension, Scale, Unit
 
 
 def test_manual_meter_and_centimeter_yield_area_semantics() -> None:

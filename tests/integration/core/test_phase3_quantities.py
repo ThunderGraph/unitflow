@@ -4,8 +4,8 @@ import math
 
 import pytest
 
-from unitflow import DimensionMismatchError, Quantity
 from tests.helpers import make_centimeter, make_meter, make_minute, make_radian, make_second, make_turn
+from unitflow import DimensionMismatchError, Quantity
 
 
 def test_phase3_acceptance_addition_and_dimension_mismatch() -> None:

@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from unitflow.core.display import default_resolver
 from unitflow.core.dimensions import Dimension
+from unitflow.core.display import default_resolver
 from unitflow.core.scale import Scale
-from unitflow.core.units import Unit
 from unitflow.core.unit_families import ANGLE
+from unitflow.core.units import Unit
 from unitflow.define.namespaces import UnitNamespace
+from unitflow.define.prefixes import generate_prefixes
 
 si = UnitNamespace("si")
 
@@ -101,7 +102,6 @@ torque_unit = si.define_unit(name="newton_meter", symbol="N*m", expr=N * m, quan
 default_resolver.register_derived(torque_unit)
 
 # ─── Generate SI prefix variants ────────────────────────────────────────────
-from unitflow.define.prefixes import generate_prefixes
 
 _common_prefixes = {"milli", "micro", "nano", "kilo", "mega", "giga"}
 

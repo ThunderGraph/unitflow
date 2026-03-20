@@ -4,35 +4,35 @@ from __future__ import annotations
 
 from typing import Any
 
+from unitflow.errors import SerializationError
+from unitflow.expr.constraints import (
+    Conjunction,
+    Constraint,
+    Disjunction,
+    Equation,
+    Negation,
+    NonStrictInequality,
+    StrictInequality,
+)
 from unitflow.expr.expressions import (
-    Expr,
-    QuantityExpr,
     AddExpr,
-    SubExpr,
-    MulExpr,
-    DivExpr,
-    PowExpr,
     ConversionExpr,
+    DivExpr,
+    Expr,
+    MulExpr,
+    PowExpr,
+    QuantityExpr,
+    SubExpr,
 )
 from unitflow.expr.symbols import Symbol
-from unitflow.expr.constraints import (
-    Constraint,
-    Equation,
-    StrictInequality,
-    NonStrictInequality,
-    Conjunction,
-    Disjunction,
-    Negation,
-)
 from unitflow.serialization.quantities import (
-    serialize_quantity,
+    deserialize_dimension,
     deserialize_quantity,
-    serialize_unit,
     deserialize_unit,
     serialize_dimension,
-    deserialize_dimension,
+    serialize_quantity,
+    serialize_unit,
 )
-from unitflow.errors import SerializationError
 
 
 def serialize_expr(expr: Expr) -> dict[str, Any]:

@@ -24,10 +24,10 @@ def test_mechanical_catalog_exposes_expected_units() -> None:
 
 
 def test_derived_si_units_are_semantically_correct() -> None:
-    assert N == kg * m / (s**2)
+    assert kg * m / (s**2) == N
     assert Pa == N / (m**2)
-    assert J == N * m
-    assert W == J / s
+    assert N * m == J
+    assert J / s == W
     assert Hz == Unit.dimensionless() / s
 
 

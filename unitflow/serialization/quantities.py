@@ -6,10 +6,10 @@ from fractions import Fraction
 from typing import Any
 
 from unitflow.core.dimensions import Dimension
+from unitflow.core.quantities import Quantity
 from unitflow.core.scale import Scale
 from unitflow.core.unit_families import UnitFamily
 from unitflow.core.units import Unit
-from unitflow.core.quantities import Quantity
 from unitflow.errors import SerializationError
 
 
@@ -117,7 +117,7 @@ def deserialize_unit(data: dict[str, Any]) -> Unit:
 
 def serialize_quantity(quantity: Quantity) -> dict[str, Any]:
     return {
-        "magnitude": serialize_magnitude(quantity.magnitude),
+        "magnitude": serialize_magnitude(quantity.magnitude),  # type: ignore[arg-type]
         "unit": serialize_unit(quantity.unit),
     }
 

@@ -16,42 +16,34 @@ import math
 import pytest
 
 from unitflow import (
-    Quantity,
-    Unit,
-    Dimension,
-    Scale,
-    symbol,
-    define_unit,
-    si,
-    mech,
-    m,
-    cm,
-    mm,
-    kg,
-    s,
+    Conjunction,
+    DimensionMismatchError,
+    Equation,
+    Hz,
+    IncompatibleUnitError,
+    J,
     N,
     Pa,
-    J,
+    Quantity,
+    Unit,
+    UnitNamespace,
     W,
-    Hz,
+    cm,
+    define_unit,
+    deserialize_constraint,
+    deserialize_quantity,
+    kg,
+    ksi,
+    m,
+    mm,
+    psi,
     rad,
     rpm,
-    psi,
-    ksi,
-    lbf,
-    inch,
-    UnitNamespace,
-    Equation,
-    Conjunction,
-    NonStrictInequality,
-    DimensionMismatchError,
-    IncompatibleUnitError,
-    serialize_quantity,
-    deserialize_quantity,
+    s,
     serialize_constraint,
-    deserialize_constraint,
+    serialize_quantity,
+    symbol,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 1. BASIC ENGINEERING CALCULATIONS
@@ -198,7 +190,7 @@ class TestExtensibility:
 
     def test_custom_namespace(self) -> None:
         aero = UnitNamespace("aero")
-        knot = aero.define_unit(
+        aero.define_unit(
             name="knot",
             symbol="kn",
             expr=Quantity(1852, m / s),
@@ -247,7 +239,7 @@ class TestSymbolicConstraints:
         force = symbol("F", unit=N)
 
         eq1 = force == 5 * N
-        eq2 = 5 * N == force
+        eq2 = force == 5 * N
 
         assert isinstance(eq1, Equation)
         assert isinstance(eq2, Equation)
@@ -322,7 +314,7 @@ class TestSerialization:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 np = pytest.importorskip("numpy")
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_array_almost_equal  # noqa: E402
 
 
 class TestNumPyWorkflows:

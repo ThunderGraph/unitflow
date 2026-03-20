@@ -1,8 +1,15 @@
 <p align="center">
-  <img src="logo.png" alt="UnitFlow" width="420" />
+  <img src="logo.png" alt="UnitFlow" width="420" /><br>
+  <strong style="font-size: 2em;">UnitFlow</strong>
 </p>
-
-<h1 align="center">UnitFlow</h1>
+<p align="center">
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.13+-blue.svg" alt="Python 3.13+"></a>
+  <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff"></a>
+  <a href="https://mypy-lang.org/"><img src="https://img.shields.io/badge/type--checked-mypy-blue.svg" alt="mypy"></a>
+  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/license-Apache%202.0-green.svg" alt="License: Apache 2.0"></a>
+  <a href="https://github.com/ThunderGraph/unitflow"><img src="https://img.shields.io/badge/tests-159%20passed-brightgreen.svg" alt="Tests: 159 passed"></a>
+  <a href="https://github.com/ThunderGraph/unitflow"><img src="https://img.shields.io/badge/coverage-85%25-brightgreen.svg" alt="Coverage: 85%"></a>
+</p>
 
 <p align="center">
   <strong>Elegant engineering math for Python.</strong><br>
@@ -294,13 +301,7 @@ If you are building digital twins, system simulations, or engineering optimizati
 
 ## Contributing
 
-UnitFlow is open source and welcomes contributions. See the `docs/` directory for:
-
-- [Architecture Decisions](docs/architecture-decisions.md)
-- [Backend Methodology](docs/backend-methodology.md)
-- [API Sketch](docs/api-sketch.md)
-- [Implementation Plan](docs/implementation-plan.md)
-- [Technical Debt](docs/technical-debt.md)
+UnitFlow is open source and welcomes contributions. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a pull request.
 
 ---
 

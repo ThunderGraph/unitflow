@@ -1,10 +1,11 @@
 """Concrete quantity semantics for unitflow."""
+# mypy: disable-error-code="arg-type,operator,return-value,assignment,misc,no-untyped-def"
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from fractions import Fraction
-import math
 from typing import TYPE_CHECKING, Any, TypeAlias, Union
 
 from unitflow.core.scale import Scale
@@ -20,6 +21,9 @@ else:
 
 _is_numpy_array_func = None
 
+def _not_numpy_array(v: object) -> bool:
+    return False
+
 def _is_numpy_array(value: Any) -> bool:
     global _is_numpy_array_func
     if _is_numpy_array_func is None:
@@ -27,7 +31,7 @@ def _is_numpy_array(value: Any) -> bool:
             from unitflow.backends.numpy import is_numpy_array as f
             _is_numpy_array_func = f
         except ImportError:
-            _is_numpy_array_func = lambda v: False
+            _is_numpy_array_func = _not_numpy_array
     return _is_numpy_array_func(value)
 
 def is_supported_magnitude(value: object) -> bool:
@@ -156,12 +160,12 @@ class Quantity:
         if isinstance(other, Unit):
             return Quantity(self.magnitude, self.unit / other)
         if is_supported_magnitude(other):
-            return Quantity(_divide_magnitudes(self.magnitude, other), self.unit)
+            return Quantity(_divide_magnitudes(self.magnitude, other), self.unit)  # type: ignore[arg-type]
         return NotImplemented
 
     def __rtruediv__(self, other: object) -> Quantity:
         if is_supported_magnitude(other):
-            return Quantity(_divide_magnitudes(other, self.magnitude), Unit.dimensionless() / self.unit)
+            return Quantity(_divide_magnitudes(other, self.magnitude), Unit.dimensionless() / self.unit)  # type: ignore[arg-type]
         return NotImplemented
 
     def __pow__(self, power: object) -> Quantity:
@@ -244,10 +248,7 @@ class Quantity:
     def __str__(self) -> str:
         from unitflow.core.display import default_resolver
 
-        if self._explicit_display:
-            resolved = self
-        else:
-            resolved = default_resolver.resolve(self)
+        resolved = self if self._explicit_display else default_resolver.resolve(self)
         unit_str = default_resolver.resolve_unit_symbol(resolved.unit)
 
         mag = resolved.magnitude

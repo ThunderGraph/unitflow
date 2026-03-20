@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 from unitflow.core.dimensions import Dimension
 from unitflow.core.units import Unit
-from unitflow.expr.expressions import Expr
 from unitflow.expr.errors import ExprError
+from unitflow.expr.expressions import Expr
 
 
 @dataclass(frozen=True, slots=True, eq=False)

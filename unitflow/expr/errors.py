@@ -2,6 +2,7 @@
 
 from unitflow.errors import UnitflowError
 
+
 class ExprError(UnitflowError):
     """Raised for general expression and symbolic errors."""
 

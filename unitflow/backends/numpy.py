@@ -1,4 +1,5 @@
 """NumPy backend integration layer for unitflow."""
+# mypy: disable-error-code="arg-type"
 
 from __future__ import annotations
 
@@ -101,10 +102,10 @@ def _ufunc_mul_div(ufunc: Any, custom_out: bool, out: Any, *inputs: Any, **kwarg
             return _format_result(result_mag, left.unit * right.unit, custom_out, out)
         else:
             return _format_result(result_mag, left.unit / right.unit, custom_out, out)
-    
+
     if isinstance(left, Quantity):
         return _format_result(result_mag, left.unit, custom_out, out)
-        
+
     if isinstance(right, Quantity):
         if ufunc is np.multiply:
             return _format_result(result_mag, right.unit, custom_out, out)
@@ -150,12 +151,12 @@ def _ufunc_power(ufunc: Any, custom_out: bool, out: Any, *inputs: Any, **kwargs:
         base, power = inputs[0], inputs[1]
         if not isinstance(base, Quantity):
             return NotImplemented
-        
+
         if np.isscalar(power):
             power_val = int(power)
             if power_val == power:
                 return _format_result(np.power(base.magnitude, power, **kwargs), base.unit ** power_val, custom_out, out)
-        
+
         return NotImplemented
 
 
@@ -164,7 +165,7 @@ def _ufunc_dimensionless(ufunc: Any, custom_out: bool, out: Any, *inputs: Any, *
     q = inputs[0]
     if not isinstance(q, Quantity):
         return NotImplemented
-    
+
     if not q.unit.dimension.is_dimensionless:
         raise DimensionMismatchError(
             f"Transcendental function {ufunc.__name__} requires a dimensionless input, got {q.unit.dimension!r}."
@@ -173,7 +174,7 @@ def _ufunc_dimensionless(ufunc: Any, custom_out: bool, out: Any, *inputs: Any, *
     normalized_mag = q.magnitude
     if q.unit.scale.pi_power != 0 or q.unit.scale.coefficient != 1:
         normalized_mag = q.magnitude * q.unit.scale.as_float()
-        
+
     from unitflow.core.units import Unit
     return _format_result(ufunc(normalized_mag, **kwargs), Unit.dimensionless(), custom_out, out)
 
@@ -186,7 +187,7 @@ def _handle_numpy_function(
 
     if func in (np.sum, np.mean, np.median, np.min, np.max):
         first_unit = None
-        
+
         # Check all quantity arguments for unit compatibility
         for arg in args:
             if isinstance(arg, Quantity):

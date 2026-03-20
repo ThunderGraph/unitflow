@@ -7,11 +7,10 @@ import pytest
 pytest.importorskip("numpy")
 
 import numpy as np
-from numpy.testing import assert_array_equal, assert_array_almost_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 
-from unitflow import Quantity, DimensionMismatchError, Unit, Scale
-from unitflow.catalogs.si import m, s, kg, rad
-from unitflow.catalogs.mechanical import rpm
+from unitflow import DimensionMismatchError, Quantity, Scale, Unit
+from unitflow.catalogs.si import m, rad, s
 
 
 def test_numpy_array_as_magnitude_is_supported() -> None:
@@ -45,10 +44,10 @@ def test_numpy_multiplication_preserves_semantics() -> None:
 
 def test_numpy_addition_converts_units() -> None:
     q1 = Quantity(np.array([1, 2, 3]), m)
-    
+
     # essentially cm
     cm_unit = Unit(dimension=m.dimension, scale=m.scale * Scale.from_ratio(1, 100))
-    q2 = Quantity(np.array([100, 200, 300]), cm_unit) 
+    q2 = Quantity(np.array([100, 200, 300]), cm_unit)
 
     res = np.add(q1, q2)
     assert res.unit == m
@@ -65,7 +64,7 @@ def test_numpy_addition_rejects_dimension_mismatch() -> None:
 
 def test_numpy_transcendental_functions_demand_dimensionless() -> None:
     angles = Quantity(np.array([np.pi / 2, np.pi]), rad)
-    
+
     res = np.sin(angles)
     assert res.unit.dimension.is_dimensionless
     assert_array_almost_equal(res.magnitude, np.array([1.0, 0.0]))
@@ -77,11 +76,11 @@ def test_numpy_transcendental_functions_demand_dimensionless() -> None:
 
 def test_numpy_reductions() -> None:
     q = Quantity(np.array([1.0, 2.0, 3.0]), m)
-    
+
     res_sum = np.sum(q)
     assert res_sum.unit == m
     assert res_sum.magnitude == 6.0
-    
+
     res_mean = np.mean(q)
     assert res_mean.unit == m
     assert res_mean.magnitude == 2.0

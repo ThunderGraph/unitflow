@@ -2,17 +2,17 @@ from __future__ import annotations
 
 import pytest
 
-from unitflow.catalogs.si import m, s
-from unitflow.expr.symbols import symbol
+from unitflow.catalogs.si import m
 from unitflow.expr.constraints import (
-    Equation,
-    StrictInequality,
-    NonStrictInequality,
     Conjunction,
     Disjunction,
+    Equation,
     Negation,
+    NonStrictInequality,
+    StrictInequality,
 )
 from unitflow.expr.errors import BooleanCoercionError
+from unitflow.expr.symbols import symbol
 
 
 def test_symbolic_comparison_creates_equations_and_inequalities() -> None:

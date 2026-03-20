@@ -75,27 +75,27 @@ class DisplayResolver:
             # Dimensionless fallback
             from unitflow.core.units import Unit
             return quantity.to(Unit.dimensionless(symbol=""))
-        
+
         target_scale = Scale.one()
         numerator: list[tuple[str, int]] = []
         denominator: list[tuple[str, int]] = []
-        
+
         # Sort dimensions for deterministic output (e.g. M L T ...)
         for dim_name, exp in mapping.items():
             base_u = self._base_units.get(dim_name)
             if not base_u:
                 return quantity  # Cannot resolve compound, return as-is
-            
+
             target_scale = target_scale * (base_u.scale ** exp)
-            
+
             sym = base_u.symbol or base_u.name or dim_name
             if exp > 0:
                 numerator.append((sym, exp))
             else:
                 denominator.append((sym, -exp))
-                
+
         symbol = self._build_symbol(numerator, denominator)
-        
+
         from unitflow.core.units import Unit
         compound_unit = Unit(
             dimension=unit.dimension,
@@ -118,21 +118,21 @@ class DisplayResolver:
         mapping = unit.dimension.to_mapping()
         if not mapping:
             return ""
-        
+
         numerator: list[tuple[str, int]] = []
         denominator: list[tuple[str, int]] = []
-        
+
         for dim_name, exp in mapping.items():
             base_u = self._base_units.get(dim_name)
             sym = dim_name
             if base_u:
                 sym = base_u.symbol or base_u.name or dim_name
-            
+
             if exp > 0:
                 numerator.append((sym, exp))
             else:
                 denominator.append((sym, -exp))
-                
+
         return self._build_symbol(numerator, denominator)
 
     def _build_symbol(self, num: list[tuple[str, int]], den: list[tuple[str, int]]) -> str:
@@ -144,11 +144,11 @@ class DisplayResolver:
                 else:
                     res.append(f"{sym}^{exp}")
             return " * ".join(res)
-            
+
         num_str = fmt(num) or "1"
         if not den:
             return num_str
-        
+
         den_str = fmt(den)
         if len(den) > 1:
             return f"{num_str} / ({den_str})"

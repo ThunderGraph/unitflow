@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from fractions import Fraction
 
-from unitflow.core.quantities import Quantity
+from unitflow.catalogs.si import N, minute, turn
 from unitflow.core.dimensions import Dimension
+from unitflow.core.display import default_resolver
+from unitflow.core.quantities import Quantity
 from unitflow.core.scale import Scale
 from unitflow.core.units import Unit
-from unitflow.catalogs.si import N, minute, turn
 from unitflow.define.namespaces import UnitNamespace
 
 mech = UnitNamespace("mech")
@@ -48,7 +49,6 @@ ksi = mech.define_unit(
     expr=1000 * psi,
 )
 
-from unitflow.core.display import default_resolver
 default_resolver.register_derived(rpm)
 default_resolver.register_derived(lbf)
 default_resolver.register_derived(psi)

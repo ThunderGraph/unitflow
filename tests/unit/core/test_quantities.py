@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-from fractions import Fraction
 import math
+from fractions import Fraction
 
 import pytest
 
+from tests.helpers import make_centimeter, make_meter, make_minute, make_radian, make_second, make_turn
 from unitflow import (
     DimensionMismatchError,
     Quantity,
     QuantityError,
 )
-from tests.helpers import make_centimeter, make_meter, make_minute, make_radian, make_second, make_turn
 
 
 def make_meter_quantity(value: int | float | Fraction) -> Quantity:

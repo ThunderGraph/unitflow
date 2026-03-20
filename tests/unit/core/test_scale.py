@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import math
-import pytest
 from fractions import Fraction
+
+import pytest
 
 from unitflow import Scale, ScaleError
 

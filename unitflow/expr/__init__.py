@@ -1,17 +1,17 @@
 """Symbolic expression and constraint layer."""
 
-from unitflow.expr.expressions import Expr, QuantityExpr, AddExpr, SubExpr, MulExpr, DivExpr, PowExpr, ConversionExpr
-from unitflow.expr.symbols import Symbol, symbol
 from unitflow.expr.constraints import (
-    Constraint,
-    Equation,
-    StrictInequality,
-    NonStrictInequality,
     Conjunction,
+    Constraint,
     Disjunction,
+    Equation,
     Negation,
+    NonStrictInequality,
+    StrictInequality,
 )
-from unitflow.expr.errors import ExprError, DimensionMismatchExprError, BooleanCoercionError
+from unitflow.expr.errors import BooleanCoercionError, DimensionMismatchExprError, ExprError
+from unitflow.expr.expressions import AddExpr, ConversionExpr, DivExpr, Expr, MulExpr, PowExpr, QuantityExpr, SubExpr
+from unitflow.expr.symbols import Symbol, symbol
 
 __all__ = [
     "AddExpr",

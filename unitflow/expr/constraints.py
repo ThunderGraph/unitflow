@@ -37,10 +37,10 @@ class Constraint:
         if type(self) is not type(other):
             return False
         if hasattr(self, "__dataclass_fields__"):
-            for field in getattr(self, "__dataclass_fields__"):
+            for field in self.__dataclass_fields__:
                 val1 = getattr(self, field)
                 val2 = getattr(other, field)
-                
+
                 # Check is_same if it's an Expr or Constraint
                 if hasattr(val1, "is_same") and hasattr(val2, "is_same"):
                     if not val1.is_same(val2):

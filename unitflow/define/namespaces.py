@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from unitflow.core.unit_families import UnitFamily
 from unitflow.core.units import Unit
@@ -70,10 +70,10 @@ class UnitNamespace:
                 f"Unknown identifier '{identifier}' in namespace '{self.name}'."
             ) from exc
 
-    def __getstate__(self) -> dict:
+    def __getstate__(self) -> dict[str, Any]:
         return self.__dict__
 
-    def __setstate__(self, state: dict) -> None:
+    def __setstate__(self, state: dict[str, Any]) -> None:
         self.__dict__.update(state)
 
     def __getattr__(self, name: str) -> Unit:

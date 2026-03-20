@@ -4,7 +4,7 @@ import math
 
 import pytest
 
-from unitflow import Quantity, UnitNamespace, cm, ksi, lbf, m, mech, psi, rad, rpm, s
+from unitflow import Quantity, UnitNamespace, cm, ksi, lbf, m, psi, rad, rpm, s
 
 
 def test_phase4_acceptance_user_can_define_ksi_without_core_edits() -> None:
@@ -20,7 +20,7 @@ def test_phase4_acceptance_user_can_define_ksi_without_core_edits() -> None:
 
 def test_phase4_acceptance_mixed_first_party_and_user_namespaces() -> None:
     custom = UnitNamespace("custom")
-    custom_length = custom.define_unit(
+    custom.define_unit(
         name="panel_width",
         symbol="panel_w",
         expr=Quantity(250, cm),

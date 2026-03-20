@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
 from unitflow import Dimension, Quantity, Scale, Unit
 from unitflow.core.display import DisplayResolver
 

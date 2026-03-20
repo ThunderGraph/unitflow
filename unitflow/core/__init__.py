@@ -10,10 +10,10 @@ __all__ = [
     "ANGLE",
     "BASE_DIMENSION_NAMES",
     "CYCLE_COUNT",
+    "SOLID_ANGLE",
     "Dimension",
     "Quantity",
     "Scale",
-    "SOLID_ANGLE",
     "Unit",
     "UnitFamily",
 ]

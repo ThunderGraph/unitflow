@@ -4,6 +4,7 @@ from fractions import Fraction
 
 import pytest
 
+from tests.helpers import make_centimeter, make_meter, make_minute, make_radian, make_second, make_turn
 from unitflow import (
     ANGLE,
     Dimension,
@@ -12,7 +13,6 @@ from unitflow import (
     Unit,
     UnitError,
 )
-from tests.helpers import make_centimeter, make_meter, make_minute, make_radian, make_second, make_turn
 
 
 def test_unit_requires_dimension_and_scale_types() -> None:

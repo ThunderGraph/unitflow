@@ -1,21 +1,19 @@
 from __future__ import annotations
 
 import pytest
-from fractions import Fraction
 
-from unitflow import Quantity, DimensionMismatchError
-from unitflow.catalogs.si import m, s, kg, N
-from unitflow.expr.symbols import symbol
-from unitflow.expr.expressions import (
-    Expr,
-    QuantityExpr,
-    AddExpr,
-    MulExpr,
-    DivExpr,
-    PowExpr,
-    ConversionExpr,
-)
+from unitflow import Quantity
+from unitflow.catalogs.si import m, s
 from unitflow.expr.errors import DimensionMismatchExprError, ExprError
+from unitflow.expr.expressions import (
+    AddExpr,
+    ConversionExpr,
+    DivExpr,
+    MulExpr,
+    PowExpr,
+    QuantityExpr,
+)
+from unitflow.expr.symbols import symbol
 
 
 def test_symbol_requires_name_and_semantics() -> None:
@@ -111,15 +109,15 @@ def test_expr_is_same_structural_equality() -> None:
 
     expr1 = x1 * 2 + y
     expr2 = x2 * 2 + symbol("y", unit=m)
-    
+
     assert expr1.is_same(expr2)
 
 def test_expr_to_returns_conversion_expr() -> None:
     x = symbol("x", unit=m)
     converted = x.to(m)
-    
+
     assert isinstance(converted, ConversionExpr)
     assert converted.dimension == m.dimension
-    
+
     with pytest.raises(DimensionMismatchExprError):
         x.to(s)

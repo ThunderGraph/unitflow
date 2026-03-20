@@ -35,7 +35,7 @@ class Expr:
         if type(self) is not type(other):
             return False
         if hasattr(self, "__dataclass_fields__"):
-            for field in getattr(self, "__dataclass_fields__"):
+            for field in self.__dataclass_fields__:
                 val1 = getattr(self, field)
                 val2 = getattr(other, field)
                 if isinstance(val1, Expr) and isinstance(val2, Expr):
@@ -114,34 +114,34 @@ def _promote(value: Any) -> Expr:
 
 
 def _dispatch_add(left: Any, right: Any) -> Expr:
-    l, r = _promote(left), _promote(right)
-    if l.dimension != r.dimension:
+    lhs, rhs = _promote(left), _promote(right)
+    if lhs.dimension != rhs.dimension:
         raise DimensionMismatchExprError("Cannot add expressions with different dimensions.")
-    return AddExpr(l, r)
+    return AddExpr(lhs, rhs)
 
 
 def _dispatch_sub(left: Any, right: Any) -> Expr:
-    l, r = _promote(left), _promote(right)
-    if l.dimension != r.dimension:
+    lhs, rhs = _promote(left), _promote(right)
+    if lhs.dimension != rhs.dimension:
         raise DimensionMismatchExprError("Cannot subtract expressions with different dimensions.")
-    return SubExpr(l, r)
+    return SubExpr(lhs, rhs)
 
 
 def _dispatch_mul(left: Any, right: Any) -> Expr:
-    l, r = _promote(left), _promote(right)
-    return MulExpr(l, r)
+    lhs, rhs = _promote(left), _promote(right)
+    return MulExpr(lhs, rhs)
 
 
 def _dispatch_div(left: Any, right: Any) -> Expr:
-    l, r = _promote(left), _promote(right)
-    return DivExpr(l, r)
+    lhs, rhs = _promote(left), _promote(right)
+    return DivExpr(lhs, rhs)
 
 
 def _dispatch_pow(left: Any, right: Any) -> Expr:
-    l = _promote(left)
+    base = _promote(left)
     if not isinstance(right, int):
         raise ExprError("Expressions can only be raised to integer powers.")
-    return PowExpr(l, right)
+    return PowExpr(base, right)
 
 
 @dataclass(frozen=True, slots=True, eq=False)

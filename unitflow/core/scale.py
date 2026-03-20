@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from fractions import Fraction
-import math
 
 from unitflow.errors import ScaleError
 

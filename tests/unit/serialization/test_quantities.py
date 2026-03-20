@@ -1,26 +1,27 @@
 from __future__ import annotations
 
-import pytest
-from fractions import Fraction
 import json
+from fractions import Fraction
 
+import pytest
+
+from unitflow.catalogs.si import m
 from unitflow.core.dimensions import Dimension
+from unitflow.core.quantities import Quantity
 from unitflow.core.scale import Scale
 from unitflow.core.unit_families import ANGLE
 from unitflow.core.units import Unit
-from unitflow.core.quantities import Quantity
 from unitflow.errors import SerializationError
 from unitflow.serialization.quantities import (
-    serialize_dimension,
     deserialize_dimension,
-    serialize_scale,
-    deserialize_scale,
-    serialize_unit,
-    deserialize_unit,
-    serialize_quantity,
     deserialize_quantity,
+    deserialize_scale,
+    deserialize_unit,
+    serialize_dimension,
+    serialize_quantity,
+    serialize_scale,
+    serialize_unit,
 )
-from unitflow.catalogs.si import m
 
 
 def test_dimension_serialization_roundtrip() -> None:
@@ -50,7 +51,7 @@ def test_unit_serialization_roundtrip() -> None:
     )
     data = serialize_unit(u)
     restored = deserialize_unit(data)
-    
+
     assert restored == u
     assert restored.name == u.name
     assert restored.symbol == u.symbol
@@ -86,7 +87,7 @@ def test_quantity_serialization_roundtrip_fraction() -> None:
 def test_serialization_error_on_invalid_data() -> None:
     with pytest.raises(SerializationError):
         deserialize_dimension({"wrong": 1})
-        
+
     with pytest.raises(SerializationError):
         deserialize_scale({"wrong": 1})
 
@@ -94,10 +95,10 @@ def test_serialization_error_on_invalid_data() -> None:
 def test_quantity_serialization_is_json_safe() -> None:
     q = Quantity(Fraction(1, 3), m)
     data = serialize_quantity(q)
-    
+
     # Must dump/load cleanly
     json_str = json.dumps(data)
     loaded_data = json.loads(json_str)
-    
+
     restored = deserialize_quantity(loaded_data)
     assert restored == q
