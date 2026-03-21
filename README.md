@@ -49,7 +49,7 @@ newtons_law = F == mass * a  # Returns an Equation, not a bool.
 
 UnitFlow was designed from the ground up as an **engineering math substrate** -- not a conversion utility, not a wrapper around strings, and not a half-measure bolted onto NumPy after the fact.
 
-It is the computational foundation of [ThunderGraph](https://github.com/ThunderGraph), an AI-powered model-based systems engineering platform. Every design decision optimizes for the same thing: **making engineering math feel like engineering math**.
+It is the computational foundation of [ThunderGraph](https://www.thundergraph.ai), an AI-powered model-based systems engineering platform. Every design decision optimizes for the same thing: **making engineering math feel like engineering math**.
 
 ---
 
