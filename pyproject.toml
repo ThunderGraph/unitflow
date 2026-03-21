@@ -1,10 +1,15 @@
 [project]
 name = "unitflow"
-version = "0.1.0"
+version = "0.1.1"
 description = "Elegant engineering math substrate for executable MBSE."
-readme = "README.md"
+readme = "PYPI.md"
 requires-python = ">=3.13"
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/ThunderGraph/unitflow"
+Repository = "https://github.com/ThunderGraph/unitflow"
+Issues = "https://github.com/ThunderGraph/unitflow/issues"
 
 [build-system]
 requires = ["hatchling"]
