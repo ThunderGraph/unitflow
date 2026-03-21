@@ -54,7 +54,7 @@ class DisplayResolver:
             return True
         if not unit.symbol:
             return False
-        return "*" not in unit.symbol and "/" not in unit.symbol
+        return "*" not in unit.symbol
 
     def resolve(self, quantity: Quantity) -> Quantity:
         """Resolve a quantity to its cleanest known default display form."""

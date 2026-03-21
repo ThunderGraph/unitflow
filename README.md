@@ -7,7 +7,7 @@
   <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff"></a>
   <a href="https://mypy-lang.org/"><img src="https://img.shields.io/badge/type--checked-mypy-blue.svg" alt="mypy"></a>
   <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/license-Apache%202.0-green.svg" alt="License: Apache 2.0"></a>
-  <a href="https://github.com/ThunderGraph/unitflow"><img src="https://img.shields.io/badge/tests-159%20passed-brightgreen.svg" alt="Tests: 159 passed"></a>
+  <a href="https://github.com/ThunderGraph/unitflow"><img src="https://img.shields.io/badge/tests-171%20passed-brightgreen.svg" alt="Tests: 171 passed"></a>
   <a href="https://github.com/ThunderGraph/unitflow"><img src="https://img.shields.io/badge/coverage-85%25-brightgreen.svg" alt="Coverage: 85%"></a>
 </p>
 
@@ -200,7 +200,7 @@ print((6 * ft).to(m))  # 1.8288 m
 
 # Create a domain namespace
 aero = UnitNamespace("aero")
-knot = aero.define_unit(name="knot", symbol="kn", expr=Quantity(1852, m / s))
+knot = aero.define_unit(name="knot", symbol="kn", expr=Quantity(Fraction(1852, 3600), m / s))
 
 # Generate prefixed variants automatically
 generate_prefixes(aero, knot, include={"milli", "kilo"})
@@ -209,6 +209,8 @@ generate_prefixes(aero, knot, include={"milli", "kilo"})
 ### JSON-Safe Serialization
 
 Quantities, expressions, and constraint trees serialize to plain dicts. No pickle. No magic. Ready for distributed workflows.
+
+> **Note:** Serialization currently only supports scalar magnitudes (`int`, `float`, `Fraction`). Array-backed quantities from the NumPy backend are not currently serializable and will raise a `SerializationError`.
 
 ```python
 import json

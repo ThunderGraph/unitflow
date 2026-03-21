@@ -60,10 +60,10 @@ def _handle_numpy_ufunc(
 
     return NotImplemented
 
-def _format_result(result_mag: Any, unit: Any, custom_out: bool, out: Any) -> Any:
+def _format_result(result_mag: Any, unit: Any, custom_out: bool, orig_out: Any) -> Any:
     if custom_out:
-        return out[0]
-    return Quantity(result_mag, unit, _explicit_display=False)
+        return orig_out[0]
+    return Quantity(result_mag, unit)
 
 def _ufunc_reduce_add(ufunc: Any, *inputs: Any, **kwargs: Any) -> Any:
     q = inputs[0]
@@ -85,9 +85,9 @@ def _ufunc_reduce_add(ufunc: Any, *inputs: Any, **kwargs: Any) -> Any:
             new_kwargs[k] = v
 
     result_mag = ufunc.reduce(q.magnitude, *new_inputs, **new_kwargs)
-    return Quantity(result_mag, q.unit, _explicit_display=False)
+    return Quantity(result_mag, q.unit)
 
-def _ufunc_mul_div(ufunc: Any, custom_out: bool, out: Any, *inputs: Any, **kwargs: Any) -> Any:
+def _ufunc_mul_div(ufunc: Any, custom_out: bool, orig_out: Any, *inputs: Any, **kwargs: Any) -> Any:
     """Handle ufuncs that multiply or divide units."""
     import numpy as np
 
@@ -99,24 +99,24 @@ def _ufunc_mul_div(ufunc: Any, custom_out: bool, out: Any, *inputs: Any, **kwarg
 
     if isinstance(left, Quantity) and isinstance(right, Quantity):
         if ufunc is np.multiply:
-            return _format_result(result_mag, left.unit * right.unit, custom_out, out)
+            return _format_result(result_mag, left.unit * right.unit, custom_out, orig_out)
         else:
-            return _format_result(result_mag, left.unit / right.unit, custom_out, out)
+            return _format_result(result_mag, left.unit / right.unit, custom_out, orig_out)
 
     if isinstance(left, Quantity):
-        return _format_result(result_mag, left.unit, custom_out, out)
+        return _format_result(result_mag, left.unit, custom_out, orig_out)
 
     if isinstance(right, Quantity):
         if ufunc is np.multiply:
-            return _format_result(result_mag, right.unit, custom_out, out)
+            return _format_result(result_mag, right.unit, custom_out, orig_out)
         else:
             from unitflow.core.units import Unit
-            return _format_result(result_mag, Unit.dimensionless() / right.unit, custom_out, out)
+            return _format_result(result_mag, Unit.dimensionless() / right.unit, custom_out, orig_out)
 
     return NotImplemented
 
 
-def _ufunc_add_sub(ufunc: Any, custom_out: bool, out: Any, *inputs: Any, **kwargs: Any) -> Any:
+def _ufunc_add_sub(ufunc: Any, custom_out: bool, orig_out: Any, *inputs: Any, **kwargs: Any) -> Any:
     """Handle ufuncs that require compatible units."""
     left, right = inputs[0], inputs[1]
 
@@ -131,10 +131,10 @@ def _ufunc_add_sub(ufunc: Any, custom_out: bool, out: Any, *inputs: Any, **kwarg
 
     right_converted = right.to(left.unit)
     result_mag = ufunc(left.magnitude, right_converted.magnitude, **kwargs)
-    return _format_result(result_mag, left.unit, custom_out, out)
+    return _format_result(result_mag, left.unit, custom_out, orig_out)
 
 
-def _ufunc_power(ufunc: Any, custom_out: bool, out: Any, *inputs: Any, **kwargs: Any) -> Any:
+def _ufunc_power(ufunc: Any, custom_out: bool, orig_out: Any, *inputs: Any, **kwargs: Any) -> Any:
     """Handle powers, squares, and square roots."""
     import numpy as np
 
@@ -145,7 +145,7 @@ def _ufunc_power(ufunc: Any, custom_out: bool, out: Any, *inputs: Any, **kwargs:
         q = inputs[0]
         if not isinstance(q, Quantity):
             return NotImplemented
-        return _format_result(np.square(q.magnitude, **kwargs), q.unit ** 2, custom_out, out)
+        return _format_result(np.square(q.magnitude, **kwargs), q.unit ** 2, custom_out, orig_out)
 
     if ufunc is np.power:
         base, power = inputs[0], inputs[1]
@@ -155,12 +155,12 @@ def _ufunc_power(ufunc: Any, custom_out: bool, out: Any, *inputs: Any, **kwargs:
         if np.isscalar(power):
             power_val = int(power)
             if power_val == power:
-                return _format_result(np.power(base.magnitude, power, **kwargs), base.unit ** power_val, custom_out, out)
+                return _format_result(np.power(base.magnitude, power, **kwargs), base.unit ** power_val, custom_out, orig_out)
 
         return NotImplemented
 
 
-def _ufunc_dimensionless(ufunc: Any, custom_out: bool, out: Any, *inputs: Any, **kwargs: Any) -> Any:
+def _ufunc_dimensionless(ufunc: Any, custom_out: bool, orig_out: Any, *inputs: Any, **kwargs: Any) -> Any:
     """Handle transcendentals which require dimensionless inputs."""
     q = inputs[0]
     if not isinstance(q, Quantity):
@@ -176,7 +176,7 @@ def _ufunc_dimensionless(ufunc: Any, custom_out: bool, out: Any, *inputs: Any, *
         normalized_mag = q.magnitude * q.unit.scale.as_float()
 
     from unitflow.core.units import Unit
-    return _format_result(ufunc(normalized_mag, **kwargs), Unit.dimensionless(), custom_out, out)
+    return _format_result(ufunc(normalized_mag, **kwargs), Unit.dimensionless(), custom_out, orig_out)
 
 
 def _handle_numpy_function(
@@ -205,7 +205,17 @@ def _handle_numpy_function(
         new_args = tuple(
             a.to(first_unit).magnitude if isinstance(a, Quantity) else a for a in args
         )
-        res_mag = func(*new_args, **kwargs)
+        new_kwargs = {}
+        for k, v in kwargs.items():
+            if isinstance(v, Quantity):
+                if not v.unit.is_compatible_with(first_unit):
+                    raise DimensionMismatchError(
+                        f"Cannot perform {func.__name__} with incompatible kwargs unit."
+                    )
+                new_kwargs[k] = v.to(first_unit).magnitude
+            else:
+                new_kwargs[k] = v
+        res_mag = func(*new_args, **new_kwargs)
         return Quantity(res_mag, first_unit)
 
     return NotImplemented

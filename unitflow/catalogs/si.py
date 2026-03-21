@@ -61,6 +61,14 @@ kg = si.register(
         symbol="kg",
     )
 )
+A = si.register(
+    Unit(
+        dimension=Dimension.base("current"),
+        scale=Scale.one(),
+        name="ampere",
+        symbol="A",
+    )
+)
 rad = si.register(
     Unit.dimensionless(
         name="radian",
@@ -89,6 +97,7 @@ Hz = si.define_unit(name="hertz", symbol="Hz", expr=Unit.dimensionless() / s, qu
 default_resolver.register_base("length", m)
 default_resolver.register_base("mass", kg)
 default_resolver.register_base("time", s)
+default_resolver.register_base("current", A)
 
 # Register derived units for clean display matching
 default_resolver.register_derived(N)

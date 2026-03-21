@@ -111,7 +111,7 @@ class Unit:
         from unitflow.core.quantities import Quantity, is_supported_magnitude
 
         if is_supported_magnitude(other):
-            return Quantity(other, self, _explicit_display=True)  # type: ignore[arg-type]
+            return Quantity(other, self)  # type: ignore[arg-type]
         return NotImplemented
 
     def __truediv__(self, other: Unit) -> Unit:

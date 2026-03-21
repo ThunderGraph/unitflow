@@ -16,7 +16,7 @@ class Constraint:
 
     def __bool__(self) -> bool:
         raise BooleanCoercionError(
-            "Constraints are not booleans. Use check(), solve(), all_of(), or & and | for logical composition."
+            "Constraints are not booleans. Use logical composition (& and |)."
         )
 
     def __and__(self, other: Any) -> Constraint:
@@ -67,6 +67,10 @@ class StrictInequality(Constraint):
     right: Expr
     operator: str  # "<" or ">"
 
+    def __post_init__(self) -> None:
+        if self.operator not in ("<", ">"):
+            raise ValueError(f"StrictInequality operator must be '<' or '>', got {self.operator!r}")
+
     def __invert__(self) -> Constraint:
         if self.operator == "<":
             return NonStrictInequality(self.left, self.right, ">=")
@@ -78,6 +82,10 @@ class NonStrictInequality(Constraint):
     left: Expr
     right: Expr
     operator: str  # "<=" or ">="
+
+    def __post_init__(self) -> None:
+        if self.operator not in ("<=", ">="):
+            raise ValueError(f"NonStrictInequality operator must be '<=' or '>=', got {self.operator!r}")
 
     def __invert__(self) -> Constraint:
         if self.operator == "<=":

@@ -78,7 +78,6 @@ class Quantity:
 
     magnitude: ScalarMagnitude
     unit: Unit
-    _explicit_display: bool = False
 
     def __post_init__(self) -> None:
         magnitude = _require_supported_magnitude(self.magnitude, context="Quantity")
@@ -90,7 +89,7 @@ class Quantity:
         if not isinstance(target_unit, Unit):
             raise QuantityError("Quantity.to() expects a Unit target.")
         factor = self.unit.conversion_factor_to(target_unit)
-        return Quantity(_apply_scale_to_magnitude(self.magnitude, factor), target_unit, _explicit_display=True)
+        return Quantity(_apply_scale_to_magnitude(self.magnitude, factor), target_unit)
 
     def is_close(
         self,
@@ -151,7 +150,7 @@ class Quantity:
 
     def __rmul__(self, other: object) -> Quantity:
         if is_supported_magnitude(other):
-            return Quantity(other * self.magnitude, self.unit, _explicit_display=self._explicit_display)
+            return Quantity(other * self.magnitude, self.unit)
         return NotImplemented
 
     def __truediv__(self, other: object) -> Quantity:
@@ -248,7 +247,7 @@ class Quantity:
     def __str__(self) -> str:
         from unitflow.core.display import default_resolver
 
-        resolved = self if self._explicit_display else default_resolver.resolve(self)
+        resolved = default_resolver.resolve(self)
         unit_str = default_resolver.resolve_unit_symbol(resolved.unit)
 
         mag = resolved.magnitude

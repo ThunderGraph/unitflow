@@ -84,3 +84,77 @@ def test_numpy_reductions() -> None:
     res_mean = np.mean(q)
     assert res_mean.unit == m
     assert res_mean.magnitude == 2.0
+
+def test_numpy_other_reductions() -> None:
+    q = Quantity(np.array([1.0, 2.0, 3.0]), m)
+
+    assert np.min(q).magnitude == 1.0
+    assert np.min(q).unit == m
+
+    assert np.max(q).magnitude == 3.0
+    assert np.max(q).unit == m
+
+    assert np.median(q).magnitude == 2.0
+    assert np.median(q).unit == m
+
+def test_numpy_reductions_with_kwargs() -> None:
+    q = Quantity(np.array([1.0, 2.0, 3.0]), m)
+    initial = Quantity(10.0, m)
+    res = np.sum(q, initial=initial)
+    assert res.magnitude == 16.0
+    assert res.unit == m
+
+    # testing where
+    res_where = np.sum(q, where=np.array([True, False, True]))
+    assert res_where.magnitude == 4.0
+    assert res_where.unit == m
+
+def test_numpy_transcendental_functions_other() -> None:
+    q = Quantity(np.array([0, np.pi/4]), rad)
+    assert_array_almost_equal(np.cos(q).magnitude, [1.0, np.sqrt(2)/2])
+    assert_array_almost_equal(np.tan(q).magnitude, [0.0, 1.0])
+
+    q2 = Quantity(np.array([1, 2]), Unit.dimensionless())
+    assert_array_almost_equal(np.exp(q2).magnitude, [np.e, np.e**2])
+    assert_array_almost_equal(np.log(q2).magnitude, [0.0, np.log(2)])
+    assert_array_almost_equal(np.log10(q2).magnitude, [0.0, np.log10(2)])
+    assert_array_almost_equal(np.log2(q2).magnitude, [0.0, 1.0])
+
+def test_numpy_subtract() -> None:
+    q1 = Quantity(np.array([3, 4]), m)
+    q2 = Quantity(np.array([1, 2]), m)
+
+    res = np.subtract(q1, q2)
+    assert res.unit == m
+    assert_array_equal(res.magnitude, np.array([2, 2]))
+
+def test_numpy_power_and_sqrt() -> None:
+    q = Quantity(np.array([4, 9]), m)
+
+    res_sq = np.square(q)
+    assert res_sq.unit == m**2
+    assert_array_equal(res_sq.magnitude, np.array([16, 81]))
+
+    res_pow = np.power(q, 3)
+    assert res_pow.unit == m**3
+    assert_array_equal(res_pow.magnitude, np.array([64, 729]))
+
+def test_numpy_divide() -> None:
+    q1 = Quantity(np.array([4, 6]), m)
+
+    # array quantity / scalar
+    res = np.divide(q1, 2)
+    assert res.unit == m
+    assert_array_equal(res.magnitude, np.array([2, 3]))
+
+def test_numpy_out_parameter() -> None:
+    q1 = Quantity(np.array([1, 2]), m)
+    q2 = Quantity(np.array([3, 4]), m)
+
+    out_arr = np.zeros(2)
+    res = np.add(q1, q2, out=out_arr)
+
+    # When out is passed, the array is returned, not a quantity
+    assert isinstance(res, np.ndarray)
+    assert_array_equal(res, np.array([4, 6]))
+    assert_array_equal(out_arr, np.array([4, 6]))

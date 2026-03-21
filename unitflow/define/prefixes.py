@@ -45,7 +45,8 @@ def generate_prefixes(
         prefixes = SI_PREFIXES
 
     if base_unit.name is None or base_unit.symbol is None:
-        raise ValueError("Base unit must have both a name and symbol to generate prefixes.")
+        from unitflow.errors import UnitError
+        raise UnitError("Base unit must have both a name and symbol to generate prefixes.")
 
     generated: dict[str, Unit] = {}
 
