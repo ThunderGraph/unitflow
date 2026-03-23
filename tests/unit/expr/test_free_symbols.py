@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unitflow.catalogs.si import m, s, kg
+from unitflow.catalogs.si import kg, m, s
 from unitflow.core.quantities import Quantity
 from unitflow.expr.constraints import (
     Conjunction,
@@ -21,7 +21,7 @@ from unitflow.expr.expressions import (
     QuantityExpr,
     SubExpr,
 )
-from unitflow.expr.symbols import Symbol, symbol
+from unitflow.expr.symbols import symbol
 
 
 class TestExprFreeSymbols:

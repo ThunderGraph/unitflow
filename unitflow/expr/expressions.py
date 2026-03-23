@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 from unitflow.core.dimensions import Dimension
 from unitflow.core.quantities import Quantity, is_supported_magnitude
 from unitflow.core.units import Unit
-from unitflow.expr.errors import DimensionMismatchExprError, EvaluationError, ExprError
+from unitflow.expr.errors import DimensionMismatchExprError, ExprError
 
 if TYPE_CHECKING:
     from unitflow.expr.constraints import Constraint

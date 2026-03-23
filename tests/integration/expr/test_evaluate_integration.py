@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from unitflow.catalogs.mechanical import rpm
-from unitflow.catalogs.si import N, W, kg, m, s, rad
+from unitflow.catalogs.si import N, m, rad, s
 from unitflow.core.quantities import Quantity
-from unitflow.expr.errors import BooleanCoercionError, EvaluationError
+from unitflow.expr.errors import EvaluationError
 from unitflow.expr.symbols import symbol
 
 

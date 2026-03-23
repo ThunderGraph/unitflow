@@ -7,8 +7,8 @@
   <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff"></a>
   <a href="https://mypy-lang.org/"><img src="https://img.shields.io/badge/type--checked-mypy-blue.svg" alt="mypy"></a>
   <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/license-Apache%202.0-green.svg" alt="License: Apache 2.0"></a>
-  <a href="https://github.com/ThunderGraph/unitflow"><img src="https://img.shields.io/badge/tests-171%20passed-brightgreen.svg" alt="Tests: 171 passed"></a>
-  <a href="https://github.com/ThunderGraph/unitflow"><img src="https://img.shields.io/badge/coverage-85%25-brightgreen.svg" alt="Coverage: 85%"></a>
+  <a href="https://github.com/ThunderGraph/unitflow"><img src="https://img.shields.io/badge/tests-253%20passed-brightgreen.svg" alt="Tests: 253 passed"></a>
+  <a href="https://github.com/ThunderGraph/unitflow"><img src="https://img.shields.io/badge/coverage-86%25-brightgreen.svg" alt="Coverage: 86%"></a>
 </p>
 
 <p align="center">
@@ -166,6 +166,70 @@ power_eq = shaft_power == shaft_torque * shaft_speed.to(rad / s)
 speed_bounds = (0 * rpm <= shaft_speed) & (shaft_speed <= 6000 * rpm)
 ```
 
+### Expression Introspection
+
+Every expression and constraint exposes a `free_symbols` property — the set of symbolic variables it depends on. This is the foundation for dependency graph construction in executable model engines.
+
+```python
+from unitflow import symbol, N, m, W, rad, s
+
+torque = symbol("torque", unit=N * m)
+speed = symbol("speed", unit=rad / s)
+power = symbol("power", unit=W)
+
+expr = torque * speed
+print(expr.free_symbols)  # frozenset({torque, speed})
+
+eq = power == torque * speed
+print(eq.free_symbols)    # frozenset({power, torque, speed})
+```
+
+### Expression Evaluation
+
+Push realized values into an expression tree and get a concrete `Quantity` back. Constraints evaluate to `bool` with explicit tolerance parameters — no global state.
+
+```python
+from unitflow import Quantity, symbol, N, m, W, rad, s
+
+torque = symbol("torque", unit=N * m)
+speed = symbol("speed", unit=rad / s)
+power = symbol("power", unit=W)
+
+# Evaluate an expression
+expr = torque * speed
+result = expr.evaluate({torque: Quantity(50, N * m), speed: Quantity(314, rad / s)})
+print(result)  # 15700 N*m/s
+
+# Evaluate a constraint
+eq = power == torque * speed
+ctx = {torque: Quantity(50, N * m), speed: Quantity(100, rad / s), power: Quantity(5000, N * m / s)}
+print(eq.evaluate(ctx))                        # True
+print(eq.evaluate(ctx, rel_tol=0.001))         # True (custom tolerance)
+```
+
+### Numeric Compilation for Solvers
+
+Compile expression trees into fast bare-float Python functions. All unit conversions and constants are baked in at compile time. The resulting callable is suitable for inner loops of numeric solvers like `scipy.optimize.root`.
+
+```python
+from unitflow import symbol, N, m, rad, s
+from unitflow.expr.compile import compile_numeric, compile_residual
+
+torque = symbol("T", unit=N * m)
+speed = symbol("w", unit=rad / s)
+power = symbol("P", unit=N * m / s)
+
+# Compile an expression to a fast float function
+fn = compile_numeric(torque * speed, [torque, speed], {torque: N * m, speed: rad / s})
+print(fn(50.0, 314.0))  # 15700.0 — pure float, no Quantity overhead
+
+# Compile an equation into a residual function (lhs - rhs)
+eq = power == torque * speed
+residual = compile_residual(eq, [power, torque, speed], {power: N * m / s, torque: N * m, speed: rad / s})
+print(residual(5000.0, 50.0, 100.0))  # 0.0 — at the solution
+print(residual(9999.0, 50.0, 100.0))  # 4999.0 — away from the solution
+```
+
 ### NumPy Array Workflows
 
 Array-backed quantities follow the same semantic rules as scalars. No separate "array mode." No monkey-patching.
@@ -274,6 +338,7 @@ UnitFlow is built in clean, composable layers:
 | **Definition System** | Keyword-first `define_unit()`, namespaces, prefix generation |
 | **Catalogs** | Curated SI and mechanical unit packs |
 | **Expression Layer** | Symbolic variables, expressions, and constraint trees |
+| **Expression Ops** | Introspection (`free_symbols`), evaluation, and numeric compilation for solvers |
 | **Serialization** | Structural JSON-safe serialization for all objects |
 | **NumPy Backend** | Optional array integration via `__array_ufunc__` |
 

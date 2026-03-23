@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import math
-
 import pytest
 
-from unitflow.catalogs.si import N, kg, m, rad, s
+from unitflow.catalogs.si import N, m, rad, s
 from unitflow.core.quantities import Quantity
 from unitflow.expr.compile import compile_numeric, compile_residual
 from unitflow.expr.errors import CompilationError

@@ -7,9 +7,8 @@ They are suitable for inner loops of numeric solvers like scipy.optimize.root.
 
 from __future__ import annotations
 
-from typing import Callable, Sequence
+from collections.abc import Callable, Sequence
 
-from unitflow.core.quantities import Quantity
 from unitflow.core.units import Unit
 from unitflow.expr.constraints import Equation
 from unitflow.expr.errors import CompilationError
@@ -223,7 +222,7 @@ def _build_function(
     source = f"def {name}({args_str}):\n    return {body}\n"
     code = compile(source, f"<unitflow.expr.compile:{name}>", "exec")
     namespace: dict[str, object] = dict(constants)
-    exec(code, namespace)  # noqa: S102
+    exec(code, namespace)
     fn = namespace[name]
     if not callable(fn):
         raise CompilationError("Generated function is not callable.")
