@@ -5,8 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from unitflow.core.dimensions import Dimension
+from unitflow.core.quantities import Quantity
 from unitflow.core.units import Unit
-from unitflow.expr.errors import ExprError
+from unitflow.expr.errors import EvaluationError, ExprError
 from unitflow.expr.expressions import Expr
 
 
@@ -33,6 +34,23 @@ class Symbol(Expr):
     @property
     def dimension(self) -> Dimension:
         return self._dimension
+
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return frozenset({self})
+
+    def evaluate(self, context: dict[Symbol, Quantity]) -> Quantity:
+        """Look up this symbol's value in the context.
+
+        Context keys must be the **same Symbol instances** used to build the
+        expression (identity-based lookup). Constructing a new Symbol with the
+        same name/unit and using it as a key will fail because Expr.__eq__
+        returns an Equation, not a bool.
+        """
+        for key in context:
+            if key is self:
+                return context[key]
+        raise EvaluationError(f"Symbol '{self.name}' is not bound in the evaluation context.")
 
     def is_same(self, other: object) -> bool:
         if not isinstance(other, Symbol):

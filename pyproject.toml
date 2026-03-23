@@ -3,7 +3,7 @@ name = "unitflow"
 version = "0.1.1"
 description = "Elegant engineering math substrate for executable MBSE."
 readme = "PYPI.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = []
 
 [project.urls]

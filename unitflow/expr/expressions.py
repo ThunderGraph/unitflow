@@ -8,10 +8,11 @@ from typing import TYPE_CHECKING, Any
 from unitflow.core.dimensions import Dimension
 from unitflow.core.quantities import Quantity, is_supported_magnitude
 from unitflow.core.units import Unit
-from unitflow.expr.errors import DimensionMismatchExprError, ExprError
+from unitflow.expr.errors import DimensionMismatchExprError, EvaluationError, ExprError
 
 if TYPE_CHECKING:
     from unitflow.expr.constraints import Constraint
+    from unitflow.expr.symbols import Symbol
 
 
 class Expr:
@@ -19,6 +20,18 @@ class Expr:
 
     @property
     def dimension(self) -> Dimension:
+        raise NotImplementedError
+
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        raise NotImplementedError
+
+    def evaluate(self, context: dict[Symbol, Quantity]) -> Quantity:
+        """Evaluate this expression against a context of realized scalar values.
+
+        Context keys must be the same Symbol instances used to build the
+        expression. Array-backed quantities are not supported in v0.
+        """
         raise NotImplementedError
 
     def to(self, target_unit: Unit) -> Expr:
@@ -152,6 +165,13 @@ class QuantityExpr(Expr):
     def dimension(self) -> Dimension:
         return self.value.unit.dimension
 
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return frozenset()
+
+    def evaluate(self, context: dict[Symbol, Quantity]) -> Quantity:
+        return self.value
+
 
 @dataclass(frozen=True, slots=True, eq=False)
 class AddExpr(Expr):
@@ -161,6 +181,13 @@ class AddExpr(Expr):
     @property
     def dimension(self) -> Dimension:
         return self.left.dimension
+
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return self.left.free_symbols | self.right.free_symbols
+
+    def evaluate(self, context: dict[Symbol, Quantity]) -> Quantity:
+        return self.left.evaluate(context) + self.right.evaluate(context)
 
 
 @dataclass(frozen=True, slots=True, eq=False)
@@ -172,6 +199,13 @@ class SubExpr(Expr):
     def dimension(self) -> Dimension:
         return self.left.dimension
 
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return self.left.free_symbols | self.right.free_symbols
+
+    def evaluate(self, context: dict[Symbol, Quantity]) -> Quantity:
+        return self.left.evaluate(context) - self.right.evaluate(context)
+
 
 @dataclass(frozen=True, slots=True, eq=False)
 class MulExpr(Expr):
@@ -181,6 +215,13 @@ class MulExpr(Expr):
     @property
     def dimension(self) -> Dimension:
         return self.left.dimension * self.right.dimension
+
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return self.left.free_symbols | self.right.free_symbols
+
+    def evaluate(self, context: dict[Symbol, Quantity]) -> Quantity:
+        return self.left.evaluate(context) * self.right.evaluate(context)
 
 
 @dataclass(frozen=True, slots=True, eq=False)
@@ -192,6 +233,13 @@ class DivExpr(Expr):
     def dimension(self) -> Dimension:
         return self.left.dimension / self.right.dimension
 
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return self.left.free_symbols | self.right.free_symbols
+
+    def evaluate(self, context: dict[Symbol, Quantity]) -> Quantity:
+        return self.left.evaluate(context) / self.right.evaluate(context)
+
 
 @dataclass(frozen=True, slots=True, eq=False)
 class PowExpr(Expr):
@@ -202,6 +250,13 @@ class PowExpr(Expr):
     def dimension(self) -> Dimension:
         return self.base.dimension**self.power
 
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return self.base.free_symbols
+
+    def evaluate(self, context: dict[Symbol, Quantity]) -> Quantity:
+        return self.base.evaluate(context) ** self.power
+
 
 @dataclass(frozen=True, slots=True, eq=False)
 class ConversionExpr(Expr):
@@ -211,3 +266,10 @@ class ConversionExpr(Expr):
     @property
     def dimension(self) -> Dimension:
         return self.target_unit.dimension
+
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return self.expr.free_symbols
+
+    def evaluate(self, context: dict[Symbol, Quantity]) -> Quantity:
+        return self.expr.evaluate(context).to(self.target_unit)

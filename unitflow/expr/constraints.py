@@ -8,11 +8,32 @@ from typing import TYPE_CHECKING, Any
 from unitflow.expr.errors import BooleanCoercionError
 
 if TYPE_CHECKING:
+    from unitflow.core.quantities import Quantity
     from unitflow.expr.expressions import Expr
+    from unitflow.expr.symbols import Symbol
 
 
 class Constraint:
     """Base class for all symbolic constraints."""
+
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        raise NotImplementedError
+
+    def evaluate(
+        self,
+        context: dict[Symbol, Quantity],
+        *,
+        rel_tol: float = 1e-9,
+        abs_tol: float = 0.0,
+    ) -> bool:
+        """Evaluate this constraint against a context of realized scalar values.
+
+        Context keys must be the same Symbol instances used to build the
+        constraint. Array-backed quantities are not supported in v0.
+        Tolerance parameters are explicit per call, never global state.
+        """
+        raise NotImplementedError
 
     def __bool__(self) -> bool:
         raise BooleanCoercionError(
@@ -57,6 +78,21 @@ class Equation(Constraint):
     left: Expr
     right: Expr
 
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return self.left.free_symbols | self.right.free_symbols
+
+    def evaluate(
+        self,
+        context: dict[Symbol, Quantity],
+        *,
+        rel_tol: float = 1e-9,
+        abs_tol: float = 0.0,
+    ) -> bool:
+        lhs = self.left.evaluate(context)
+        rhs = self.right.evaluate(context)
+        return lhs.is_close(rhs, rel_tol=rel_tol, abs_tol=abs_tol)
+
     def __invert__(self) -> Constraint:
         return Negation(self)
 
@@ -70,6 +106,23 @@ class StrictInequality(Constraint):
     def __post_init__(self) -> None:
         if self.operator not in ("<", ">"):
             raise ValueError(f"StrictInequality operator must be '<' or '>', got {self.operator!r}")
+
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return self.left.free_symbols | self.right.free_symbols
+
+    def evaluate(
+        self,
+        context: dict[Symbol, Quantity],
+        *,
+        rel_tol: float = 1e-9,
+        abs_tol: float = 0.0,
+    ) -> bool:
+        lhs = self.left.evaluate(context)
+        rhs = self.right.evaluate(context)
+        if self.operator == "<":
+            return lhs < rhs
+        return lhs > rhs
 
     def __invert__(self) -> Constraint:
         if self.operator == "<":
@@ -87,6 +140,23 @@ class NonStrictInequality(Constraint):
         if self.operator not in ("<=", ">="):
             raise ValueError(f"NonStrictInequality operator must be '<=' or '>=', got {self.operator!r}")
 
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return self.left.free_symbols | self.right.free_symbols
+
+    def evaluate(
+        self,
+        context: dict[Symbol, Quantity],
+        *,
+        rel_tol: float = 1e-9,
+        abs_tol: float = 0.0,
+    ) -> bool:
+        lhs = self.left.evaluate(context)
+        rhs = self.right.evaluate(context)
+        if self.operator == "<=":
+            return lhs <= rhs
+        return lhs >= rhs
+
     def __invert__(self) -> Constraint:
         if self.operator == "<=":
             return StrictInequality(self.left, self.right, ">")
@@ -98,13 +168,58 @@ class Conjunction(Constraint):
     left: Constraint
     right: Constraint
 
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return self.left.free_symbols | self.right.free_symbols
+
+    def evaluate(
+        self,
+        context: dict[Symbol, Quantity],
+        *,
+        rel_tol: float = 1e-9,
+        abs_tol: float = 0.0,
+    ) -> bool:
+        left_result = self.left.evaluate(context, rel_tol=rel_tol, abs_tol=abs_tol)
+        if not left_result:
+            return False
+        return self.right.evaluate(context, rel_tol=rel_tol, abs_tol=abs_tol)
+
 
 @dataclass(frozen=True, slots=True, eq=False)
 class Disjunction(Constraint):
     left: Constraint
     right: Constraint
 
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return self.left.free_symbols | self.right.free_symbols
+
+    def evaluate(
+        self,
+        context: dict[Symbol, Quantity],
+        *,
+        rel_tol: float = 1e-9,
+        abs_tol: float = 0.0,
+    ) -> bool:
+        left_result = self.left.evaluate(context, rel_tol=rel_tol, abs_tol=abs_tol)
+        if left_result:
+            return True
+        return self.right.evaluate(context, rel_tol=rel_tol, abs_tol=abs_tol)
+
 
 @dataclass(frozen=True, slots=True, eq=False)
 class Negation(Constraint):
     constraint: Constraint
+
+    @property
+    def free_symbols(self) -> frozenset[Symbol]:
+        return self.constraint.free_symbols
+
+    def evaluate(
+        self,
+        context: dict[Symbol, Quantity],
+        *,
+        rel_tol: float = 1e-9,
+        abs_tol: float = 0.0,
+    ) -> bool:
+        return not self.constraint.evaluate(context, rel_tol=rel_tol, abs_tol=abs_tol)

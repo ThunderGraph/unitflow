@@ -11,3 +11,9 @@ class DimensionMismatchExprError(ExprError):
 
 class BooleanCoercionError(ExprError):
     """Raised when a constraint is coerced to boolean."""
+
+class EvaluationError(ExprError):
+    """Raised when expression evaluation fails (e.g. unbound symbol)."""
+
+class CompilationError(ExprError):
+    """Raised when numeric compilation of an expression fails."""
