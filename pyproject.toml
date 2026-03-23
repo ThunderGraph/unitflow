@@ -1,6 +1,6 @@
 [project]
 name = "unitflow"
-version = "0.1.1"
+version = "0.2.0"
 description = "Elegant engineering math substrate for executable MBSE."
 readme = "PYPI.md"
 requires-python = ">=3.11"
